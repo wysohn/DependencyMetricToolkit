@@ -2,6 +2,7 @@
 
 import os
 import sys
+import csv
 
 from ply import lex
 
@@ -61,34 +62,44 @@ if __name__ == '__main__':
         print('Please provide the folder path as an argument.')
         sys.exit(1)
 
-    folder_name = sys.argv[1]
-    java_files_generator = read_java_files(folder_name)
+    folder_names = sys.argv[1:]
 
-    num_classes = 0
-    num_abstract_classes = 0
-    num_interfaces = 0
+    with open('abstractness.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['Project', 'A'])
 
-    for file_path, java_code in java_files_generator:
-        lexer.input(java_code)
-        for token in lexer:
-            if token.type == 'KEYWORD' and token.value == 'abstract':
-                # print('Abstract class:', file_path)
-                num_abstract_classes += 1
-                break
-            elif token.type == 'KEYWORD' and token.value == 'class':
-                # print('Class:', file_path)
-                num_classes += 1
-                break
-            elif token.type == 'KEYWORD' and token.value == 'interface':
-                # print('Interface:', file_path)
-                num_interfaces += 1
-                break
+        for folder_name in folder_names:
+            java_files_generator = read_java_files(folder_name)
 
-    print(f'Number of classes: {num_classes}')
-    print(f'Number of abstract classes: {num_abstract_classes}')
-    print(f'Number of interfaces: {num_interfaces}')
+            num_classes = 0
+            num_abstract_classes = 0
+            num_interfaces = 0
 
-    abstract_count = num_abstract_classes + num_interfaces
-    total_count = num_classes + num_abstract_classes + num_interfaces
-    print(
-        f'Abstractness: {abstract_count / total_count}')
+            for file_path, java_code in java_files_generator:
+                lexer.input(java_code)
+                for token in lexer:
+                    if token.type == 'KEYWORD' and token.value == 'abstract':
+                        # print('Abstract class:', file_path)
+                        num_abstract_classes += 1
+                        break
+                    elif token.type == 'KEYWORD' and token.value == 'class':
+                        # print('Class:', file_path)
+                        num_classes += 1
+                        break
+                    elif token.type == 'KEYWORD' and token.value == 'interface':
+                        # print('Interface:', file_path)
+                        num_interfaces += 1
+                        break
+
+            print(f'Number of classes: {num_classes}')
+            print(f'Number of abstract classes: {num_abstract_classes}')
+            print(f'Number of interfaces: {num_interfaces}')
+
+            abstract_count = num_abstract_classes + num_interfaces
+            total_count = num_classes + num_abstract_classes + num_interfaces
+            if (total_count == 0):
+                print('No classes found for', folder_name)
+                writer.writerow([folder_name, None])
+            else:
+                print(f'Abstractness: {abstract_count / total_count}')
+                writer.writerow([folder_name, abstract_count / total_count])

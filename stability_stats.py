@@ -2,6 +2,7 @@
 
 import os
 import sys
+import csv
 
 from ply import lex
 
@@ -67,20 +68,28 @@ if __name__ == '__main__':
         print('Please provide the folder path and package prefix as an argument.')
         sys.exit(1)
 
-    folder_name = sys.argv[1]
-    package_prefix = sys.argv[2]
-    java_files_generator = read_java_files(folder_name)
+    package_prefix = sys.argv[1]
+    folder_names = sys.argv[2:]
 
-    number_of_imports = 0
+    with open('stability_stats.csv', 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(['project', 'out: '+package_prefix])
 
-    for file_path, java_code in java_files_generator:
-        lexer.input(java_code)
-        for token in lexer:
-            if token.type == 'IMPORT' and token.value.startswith('import ' + package_prefix):
-                print(file_path)
-                print(token.value)
-                number_of_imports += 1
-                break
+        for folder_name in folder_names:
+            java_files_generator = read_java_files(folder_name)
 
-    print('Number of files that imports from {}: {}'.format(
-        package_prefix, number_of_imports))
+            number_of_imports = 0
+
+            for file_path, java_code in java_files_generator:
+                lexer.input(java_code)
+                for token in lexer:
+                    if token.type == 'IMPORT' and token.value.startswith('import ' + package_prefix):
+                        print(file_path)
+                        print(token.value)
+                        number_of_imports += 1
+                        break
+
+            print('Number of files that imports from {} of {}: {}'.format(
+                package_prefix, folder_name, number_of_imports))
+
+            writer.writerow([folder_name, number_of_imports])
