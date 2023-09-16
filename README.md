@@ -16,14 +16,14 @@ Then, the abstractness is calculated, as explained in Clean Architecture, as fol
 
 `(# of abstract classes + # of interfaces) / (# of abstract classes + # of interfaces + # of classes)`
 
-Usage: `abstractness_stats.py ./TheFolderThatHasJavaCodes`
+Usage: `abstractness_stats.py ./TheFolderThatHasJavaCodes ./TheFolderThatHasJavaCodes2 ./TheFolderThatHasJavaCodes3 ...`
 
 ### stability_stats.py
 Check for every source code that imports the classes/interfaces that are part of the package specified by you.
 
 It simply checks if the prefixes that you provide (for example, java.util) are imported at least once in each source code file.
 
-Usage: `stability_stats.py ./TheFolderThatHasJavaCodes java.util`
+Usage: `stability_stats.py java.util ./TheFolderThatHasJavaCodes ./TheFolderThatHasJavaCodes2 ./TheFolderThatHasJavaCodes3 ...`
 
 ## License
 
